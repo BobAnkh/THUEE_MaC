@@ -36,10 +36,11 @@ class Linear():
         """
         self.x = x
 
-        # ToDo: 
+        # DONE: 
         # self.out = ???
         # return self.out
-        raise NotImplemented
+        self.out = np.dot(self.x, self.W) + self.b
+        return self.out
 
     def backward(self, delta):
 
@@ -52,8 +53,10 @@ class Linear():
         
         self.db[0] = np.dot(delta.T,np.ones(delta.shape[0])) / delta.shape[0]     # shape should be (1, out_features); divide batch_size to pass the auto_grader
 
-        # ToDo: 
+        # DONE: 
         # self.dW = ???       # divide batch_size to pass the auto_grader 
         # dx = ???
         # return dx
-        raise NotImplemented
+        self.dW = np.dot(self.x.T, delta) / delta.shape[0]
+        dx = np.dot(delta, self.W.T)
+        return dx
