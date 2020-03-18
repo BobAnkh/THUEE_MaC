@@ -65,7 +65,7 @@ class Sigmoid(Activation):
         super(Sigmoid, self).__init__()
 
     def forward(self, x):
-        # DONE:
+        # VERIFIED:
         # Might we need to store something before returning?
         # self.state = ???
         # Hint: You can use np.exp() function 
@@ -74,7 +74,7 @@ class Sigmoid(Activation):
         return self.state
 
     def derivative(self):
-        # DONE:
+        # VERIFIED:
         # Maybe something we need later in here...
         # return ???
         # Maybe something we need later in here...
@@ -90,7 +90,7 @@ class Tanh(Activation):
         super(Tanh, self).__init__()
 
     def forward(self, x):
-        # DONE:
+        # VERIFIED:
         # self.state = ???
         # Hint: You can use np.exp() function 
         # return self.state
@@ -98,7 +98,7 @@ class Tanh(Activation):
         return self.state
 
     def derivative(self):
-        # DONE:
+        # VERIFIED:
         # return ???
         return (1 - self.state**2)
 
@@ -113,14 +113,16 @@ class ReLU(Activation):
         super(ReLU, self).__init__()
 
     def forward(self, x):
-        # DONE:
+        # VERIFIED:
         # self.state = ???
         # return self.state
-        self.state = x if x > 0 else 0
+        self.state = np.maximum(x, 0)
         return self.state
 
 
     def derivative(self):
-        # DONE:
+        # VERIFIED
         # return ???
-        return 1 if self.state > 0 else 0
+        tmp=self.state
+        tmp[tmp>0]=1
+        return tmp

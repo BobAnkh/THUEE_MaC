@@ -36,7 +36,7 @@ class Linear():
         """
         self.x = x
 
-        # DONE: 
+        # VERIFIED: 
         # self.out = ???
         # return self.out
         self.out = np.dot(self.x, self.W) + self.b
@@ -53,7 +53,7 @@ class Linear():
         
         self.db[0] = np.dot(delta.T,np.ones(delta.shape[0])) / delta.shape[0]     # shape should be (1, out_features); divide batch_size to pass the auto_grader
 
-        # DONE: 
+        # VERIFIED: 
         # self.dW = ???       # divide batch_size to pass the auto_grader 
         # dx = ???
         # return dx

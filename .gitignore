@@ -1,2 +1,9 @@
 # vscode settings
 .vscode
+
+# __pycache__
+hw1/program/hw1/__pycache__
+hw1/program/mytorch/__pycache__
+hw1/program/autograder/hw1_autograder/tests/helpers/__pycache__
+hw1/program/__pycache__
+hw1/program/autograder/hw1_autograder/tests/__pycache__
