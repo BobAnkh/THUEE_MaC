@@ -58,11 +58,7 @@ class SoftmaxCrossEntropy(Criterion):
         # VERIFIED:
         # Hint: use self.logits, self.labels, self.sm, and np.sum(???, axis = 1)
         # return ???
-        for i in range(self.sm.shape[0]):
-            for j in range(self.logits.shape[1]):
-                self.logits[i][j]-=self.sm[i]
-        # return - np.sum(np.dot(self.labels, (self.logits - self.sm[:, np.newaxis]).T), axis=1) / self.logits.shape[0]
-        return - np.diagonal(np.dot(self.labels, self.logits.T))
+        return - np.sum(self.labels * (self.logits-self.sm[:,np.newaxis]), axis = 1)
 
     def derivative(self):
         """
