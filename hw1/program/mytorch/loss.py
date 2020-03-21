@@ -55,7 +55,7 @@ class SoftmaxCrossEntropy(Criterion):
         self.sm = maxx + np.log(np.sum(np.exp(x - maxx[:, np.newaxis]), axis=1))
         # log softmax sum
         
-        # VERIFIED:
+        # DONE:
         # Hint: use self.logits, self.labels, self.sm, and np.sum(???, axis = 1)
         # return ???
         return - np.sum(self.labels * (self.logits-self.sm[:,np.newaxis]), axis = 1)
@@ -65,7 +65,7 @@ class SoftmaxCrossEntropy(Criterion):
         Return:
             out (np.array): (batch size, 10)
         """
-        # VERIFIED:
+        # DONE:
         # Hint: fill in self.logits and self.labels in the following sentence
         #return (np.exp(???) / np.exp(self.sm)[:, np.newaxis]) - ???
         return (np.exp(self.logits) / np.exp(self.sm)[:, np.newaxis]) - self.labels

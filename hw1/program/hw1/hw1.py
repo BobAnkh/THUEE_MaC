@@ -64,10 +64,11 @@ class MLP(object):
             t_size.append(i)
         t_size.append(output_size) # [input, hiddens, output]
 
-        # ToDo:
+        # DONE:
         # Initialize and add all your linear layers into the list 'self.linear_layers'
         # (HINT: self.linear_layers = [ Linear(???, ???, ???) for ?? in ? ])
         # self.linear_layers = ???
+        self.linear_layers = [ Linear(t_size[i], t_size[i + 1], weight_init_fn, bias_init_fn) for i in range(len(t_size)-1)]
 
         # If batch norm, add batch norm layers into the list 'self.bn_layers'
         if self.bn:
@@ -99,28 +100,31 @@ class MLP(object):
         for i in range(self.nlayers):
             self.hiddens.append(self.out)
 
-            # ToDo: 
+            # DONE: 
             # Hint: use self.linear_layers[i] and self.hiddens[i]
             # self.out = ???
+            self.out = self.linear_layers[i](self.hiddens[i])
             if self.bn and i < self.num_bn_layers:
                 self.out = self.bn_layers[i](self.out, eval=not self.train_mode) # BN layers have different behavior according to train mode
             # Hint: use self.activations[i] and previous self.out
             # self.out = ???
-        #return self.out
-        raise NotImplemented
+            self.out = self.activations[i](self.out)
+        return self.out
 
     def zero_grads(self):
         # Use numpyArray.fill(0.0) to zero out your backpropped derivatives in each
         # of your linear and batchnorm layers.
         for i in range(self.nlayers):
             self.linear_layers[i].dW = np.zeros(self.linear_layers[i].dW.shape)
-            # ToDo: 
+            # DONE: 
             # self.linear_layers[i].db = ???
+            self.linear_layers[i].db = np.zeros(self.linear_layers[i].db.shape)
             if self.bn and i < self.num_bn_layers:
                 self.bn_layers[i].dgamma = np.zeros(self.bn_layers[i].dgamma.shape)
-                # ToDo: 
+                # DONE: 
                 # self.bn_layers[i].dbeta = ???
-        raise NotImplemented
+                self.bn_layers[i].dbeta = np.zeros(self.bn_layers[i].dbeta.shape)
+        return
 
     def step(self):
         # Apply a step to the weights and biases of the linear layers.
@@ -136,20 +140,24 @@ class MLP(object):
         if self.momentum != 0:
             for i in range(self.nlayers):
                 self.vW[i] = self.vW[i] * self.momentum + self.linear_layers[i].dW
-                # ToDo: 
+                # DONE: 
                 # self.vb[i] = ???
+                self.vb[i] = self.vb[i] * self.momentum + self.linear_layers[i].db
                 if self.bn and i < self.num_bn_layers:
                     self.vgamma[i] = self.vgamma[i] * self.momentum + self.bn_layers[i].dgamma
-                    # ToDo:
+                    # DONE:
                     # self.vbeta[i] = ???
+                    self.vbeta[i] = self.vbeta[i] * self.momentum + self.bn_layers[i].dbeta
 
                 self.linear_layers[i].W -= self.vW[i] * self.lr
-                # ToDo:
+                # DONE:
                 # self.linear_layers[i].b -= ???
+                self.linear_layers[i].b -= self.vb[i] * self.lr
                 if self.bn and i < self.num_bn_layers:
                     self.bn_layers[i].gamma -= self.vgamma[i] * self.lr
-                    # ToDo:
+                    # DONE:
                     # self.bn_layers[i].beta -= ???
+                    self.bn_layers[i].beta -= self.vbeta[i] * self.lr
         else:
             for i in range(self.nlayers):
                 self.linear_layers[i].W -= self.linear_layers[i].dW * self.lr
@@ -158,7 +166,7 @@ class MLP(object):
                     self.bn_layers[i].gamma -= self.bn_layers[i].dgamma * self.lr
                     self.bn_layers[i].beta -= self.bn_layers[i].dbeta * self.lr
 
-        raise NotImplemented
+        return
 
     def backward(self, labels):
         # Backpropagate through the activation functions, batch norm and
@@ -175,11 +183,12 @@ class MLP(object):
             else:
                 bn_deriv = act_deriv
 
-            # ToDo:
+            # DONE:
             # Hint: use self.linear_layers[i].backward()
             # deriv = ???
+            deriv = self.linear_layers[i].backward(bn_deriv)
 
-        raise NotImplemented
+        return
 
     def error(self, labels):
         return (np.argmax(self.output, axis = 1) != np.argmax(labels, axis = 1)).sum()
@@ -230,16 +239,18 @@ def get_training_stats(mlp, dset, nepochs, batch_size):
             # Train ...
             mlp.train()
             end = min(b+batch_size, len(trainx) -  1)
-            # ToDo:
+            # DONE:
             # Hint: call mlp(), the parameter is the current batch of data trainx[b:end]
             # out = ???
+            out = mlp(trainx[b:end])
             loss = mlp.criterion(out, trainy[b:end])
             loss = np.sum(loss)
             
             mlp.zero_grads()
-            # ToDo:
+            # DONE:
             # Hint: call mlp.backward(), the parameter is the current batch of ground truch trainy[b:end]
             # ???
+            mlp.backward(trainy[b:end])
             mlp.step()
 
             result = np.argmax(out, axis=1)
