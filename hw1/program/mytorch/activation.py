@@ -6,7 +6,6 @@ import os
 
 
 class Activation(object):
-
     """
     Interface for activation functions (non-linearities).
 
@@ -34,7 +33,6 @@ class Activation(object):
 
 
 class Identity(Activation):
-
     """
     Identity function (already implemented).
     """
@@ -53,7 +51,6 @@ class Identity(Activation):
 
 
 class Sigmoid(Activation):
-
     """
     Sigmoid non-linearity
     """
@@ -68,7 +65,7 @@ class Sigmoid(Activation):
         # DONE:
         # Might we need to store something before returning?
         # self.state = ???
-        # Hint: You can use np.exp() function 
+        # Hint: You can use np.exp() function
         # return self.state
         self.state = 1.0 / (1.0 + np.exp(-x))
         return self.state
@@ -80,19 +77,18 @@ class Sigmoid(Activation):
         # Maybe something we need later in here...
         return self.state * (1.0 - self.state)
 
-class Tanh(Activation):
 
+class Tanh(Activation):
     """
     Tanh non-linearity
     """
-
     def __init__(self):
         super(Tanh, self).__init__()
 
     def forward(self, x):
         # DONE:
         # self.state = ???
-        # Hint: You can use np.exp() function 
+        # Hint: You can use np.exp() function
         # return self.state
         self.state = (1 - np.exp(-2 * x)) / (1 + np.exp(-2 * x))
         return self.state
@@ -104,11 +100,9 @@ class Tanh(Activation):
 
 
 class ReLU(Activation):
-
     """
     ReLU non-linearity
     """
-
     def __init__(self):
         super(ReLU, self).__init__()
 
@@ -119,10 +113,9 @@ class ReLU(Activation):
         self.state = np.maximum(x, 0)
         return self.state
 
-
     def derivative(self):
         # DONE
         # return ???
-        tmp=self.state
-        tmp[tmp>0]=1
+        tmp = self.state
+        tmp[tmp > 0] = 1
         return tmp

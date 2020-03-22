@@ -8,6 +8,7 @@ import os
 # of loss functions (which are in the form of classes so that they can be
 # exchanged easily (it's how PyTorch and other ML libraries do it))
 
+
 class Criterion(object):
     """
     Interface for loss functions.
@@ -29,11 +30,11 @@ class Criterion(object):
     def derivative(self):
         raise NotImplemented
 
+
 class SoftmaxCrossEntropy(Criterion):
     """
     Softmax loss
     """
-
     def __init__(self):
         super(SoftmaxCrossEntropy, self).__init__()
         self.sm = None
@@ -50,15 +51,17 @@ class SoftmaxCrossEntropy(Criterion):
         self.labels = y
 
         # LogSumExp trick: please refer to https://www.xarg.org/2016/06/the-log-sum-exp-trick-in-machine-learning/
-        
-        maxx = np.max(x, axis = 1)
-        self.sm = maxx + np.log(np.sum(np.exp(x - maxx[:, np.newaxis]), axis=1))
+
+        maxx = np.max(x, axis=1)
+        self.sm = maxx + np.log(np.sum(np.exp(x - maxx[:, np.newaxis]),
+                                       axis=1))
         # log softmax sum
-        
+
         # DONE:
         # Hint: use self.logits, self.labels, self.sm, and np.sum(???, axis = 1)
         # return ???
-        return - np.sum(self.labels * (self.logits-self.sm[:,np.newaxis]), axis = 1)
+        return -np.sum(self.labels * (self.logits - self.sm[:, np.newaxis]),
+                       axis=1)
 
     def derivative(self):
         """
@@ -68,4 +71,5 @@ class SoftmaxCrossEntropy(Criterion):
         # DONE:
         # Hint: fill in self.logits and self.labels in the following sentence
         #return (np.exp(???) / np.exp(self.sm)[:, np.newaxis]) - ???
-        return (np.exp(self.logits) / np.exp(self.sm)[:, np.newaxis]) - self.labels
+        return (np.exp(self.logits) /
+                np.exp(self.sm)[:, np.newaxis]) - self.labels

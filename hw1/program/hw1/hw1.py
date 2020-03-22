@@ -34,13 +34,20 @@ from linear import *
 
 
 class MLP(object):
-
     """
     A simple multilayer perceptron
     """
-
-    def __init__(self, input_size, output_size, hiddens, activations, weight_init_fn,
-                 bias_init_fn, criterion, lr, momentum=0.0, num_bn_layers=0):
+    def __init__(self,
+                 input_size,
+                 output_size,
+                 hiddens,
+                 activations,
+                 weight_init_fn,
+                 bias_init_fn,
+                 criterion,
+                 lr,
+                 momentum=0.0,
+                 num_bn_layers=0):
 
         # Don't change this -->
         self.train_mode = True
@@ -62,29 +69,41 @@ class MLP(object):
         t_size = [input_size]
         for i in hiddens:
             t_size.append(i)
-        t_size.append(output_size) # [input, hiddens, output]
+        t_size.append(output_size)  # [input, hiddens, output]
 
         # DONE:
         # Initialize and add all your linear layers into the list 'self.linear_layers'
         # (HINT: self.linear_layers = [ Linear(???, ???, ???) for ?? in ? ])
         # self.linear_layers = ???
-        self.linear_layers = [ Linear(t_size[i], t_size[i + 1], weight_init_fn, bias_init_fn) for i in range(len(t_size)-1)]
+        self.linear_layers = [
+            Linear(t_size[i], t_size[i + 1], weight_init_fn, bias_init_fn)
+            for i in range(len(t_size) - 1)
+        ]
 
         # If batch norm, add batch norm layers into the list 'self.bn_layers'
         if self.bn:
-            self.bn_layers = [BatchNorm(t_size[i+1]) for i in range(self.num_bn_layers)]
+            self.bn_layers = [
+                BatchNorm(t_size[i + 1]) for i in range(self.num_bn_layers)
+            ]
 
         if self.momentum != 0:
             t_size = [input_size]
             for i in hiddens:
                 t_size.append(i)
             t_size.append(output_size)
-            self.vW = [np.zeros((t_size[i], t_size[i + 1])) for i in range(len(t_size) - 1)]
+            self.vW = [
+                np.zeros((t_size[i], t_size[i + 1]))
+                for i in range(len(t_size) - 1)
+            ]
             t_size = t_size[1:]
             self.vb = [np.zeros(i) for i in t_size]
             if self.bn:
-                self.vgamma = [np.zeros(t_size[i]) for i in range(self.num_bn_layers)]
-                self.vbeta = [np.zeros(t_size[i]) for i in range(self.num_bn_layers)]
+                self.vgamma = [
+                    np.zeros(t_size[i]) for i in range(self.num_bn_layers)
+                ]
+                self.vbeta = [
+                    np.zeros(t_size[i]) for i in range(self.num_bn_layers)
+                ]
 
     def forward(self, x):
         """
@@ -100,12 +119,14 @@ class MLP(object):
         for i in range(self.nlayers):
             self.hiddens.append(self.out)
 
-            # DONE: 
+            # DONE:
             # Hint: use self.linear_layers[i] and self.hiddens[i]
             # self.out = ???
             self.out = self.linear_layers[i](self.hiddens[i])
             if self.bn and i < self.num_bn_layers:
-                self.out = self.bn_layers[i](self.out, eval=not self.train_mode) # BN layers have different behavior according to train mode
+                self.out = self.bn_layers[i](
+                    self.out, eval=not self.train_mode
+                )  # BN layers have different behavior according to train mode
             # Hint: use self.activations[i] and previous self.out
             # self.out = ???
             self.out = self.activations[i](self.out)
@@ -116,14 +137,16 @@ class MLP(object):
         # of your linear and batchnorm layers.
         for i in range(self.nlayers):
             self.linear_layers[i].dW = np.zeros(self.linear_layers[i].dW.shape)
-            # DONE: 
+            # DONE:
             # self.linear_layers[i].db = ???
             self.linear_layers[i].db = np.zeros(self.linear_layers[i].db.shape)
             if self.bn and i < self.num_bn_layers:
-                self.bn_layers[i].dgamma = np.zeros(self.bn_layers[i].dgamma.shape)
-                # DONE: 
+                self.bn_layers[i].dgamma = np.zeros(
+                    self.bn_layers[i].dgamma.shape)
+                # DONE:
                 # self.bn_layers[i].dbeta = ???
-                self.bn_layers[i].dbeta = np.zeros(self.bn_layers[i].dbeta.shape)
+                self.bn_layers[i].dbeta = np.zeros(
+                    self.bn_layers[i].dbeta.shape)
         return
 
     def step(self):
@@ -139,15 +162,19 @@ class MLP(object):
 
         if self.momentum != 0:
             for i in range(self.nlayers):
-                self.vW[i] = self.vW[i] * self.momentum + self.linear_layers[i].dW
-                # DONE: 
+                self.vW[
+                    i] = self.vW[i] * self.momentum + self.linear_layers[i].dW
+                # DONE:
                 # self.vb[i] = ???
-                self.vb[i] = self.vb[i] * self.momentum + self.linear_layers[i].db
+                self.vb[
+                    i] = self.vb[i] * self.momentum + self.linear_layers[i].db
                 if self.bn and i < self.num_bn_layers:
-                    self.vgamma[i] = self.vgamma[i] * self.momentum + self.bn_layers[i].dgamma
+                    self.vgamma[i] = self.vgamma[
+                        i] * self.momentum + self.bn_layers[i].dgamma
                     # DONE:
                     # self.vbeta[i] = ???
-                    self.vbeta[i] = self.vbeta[i] * self.momentum + self.bn_layers[i].dbeta
+                    self.vbeta[i] = self.vbeta[
+                        i] * self.momentum + self.bn_layers[i].dbeta
 
                 self.linear_layers[i].W -= self.vW[i] * self.lr
                 # DONE:
@@ -163,7 +190,8 @@ class MLP(object):
                 self.linear_layers[i].W -= self.linear_layers[i].dW * self.lr
                 self.linear_layers[i].b -= self.linear_layers[i].db * self.lr
                 if self.bn and i < self.num_bn_layers:
-                    self.bn_layers[i].gamma -= self.bn_layers[i].dgamma * self.lr
+                    self.bn_layers[
+                        i].gamma -= self.bn_layers[i].dgamma * self.lr
                     self.bn_layers[i].beta -= self.bn_layers[i].dbeta * self.lr
 
         return
@@ -173,7 +201,9 @@ class MLP(object):
         # linear layers.
         # Be aware of which return derivatives and which are pure backward passes
         # i.e. take in a loss w.r.t it's output.
-        loss = self.criterion(self.out, labels) # call self.criterion.forward() explicitly to pass the auto_grader
+        loss = self.criterion(
+            self.out, labels
+        )  # call self.criterion.forward() explicitly to pass the auto_grader
         deriv = self.criterion.derivative()
 
         for i in range(self.nlayers)[::-1]:  # Backpropogation
@@ -191,7 +221,8 @@ class MLP(object):
         return
 
     def error(self, labels):
-        return (np.argmax(self.output, axis = 1) != np.argmax(labels, axis = 1)).sum()
+        return (np.argmax(self.output, axis=1) != np.argmax(labels,
+                                                            axis=1)).sum()
 
     def total_loss(self, labels):
         return self.criterion(self.output, labels).sum()
@@ -204,6 +235,7 @@ class MLP(object):
 
     def eval(self):
         self.train_mode = False
+
 
 def get_training_stats(mlp, dset, nepochs, batch_size):
     train, val, test = dset
@@ -238,14 +270,14 @@ def get_training_stats(mlp, dset, nepochs, batch_size):
 
             # Train ...
             mlp.train()
-            end = min(b+batch_size, len(trainx) -  1)
+            end = min(b + batch_size, len(trainx) - 1)
             # DONE:
             # Hint: call mlp(), the parameter is the current batch of data trainx[b:end]
             # out = ???
             out = mlp(trainx[b:end])
             loss = mlp.criterion(out, trainy[b:end])
             loss = np.sum(loss)
-            
+
             mlp.zero_grads()
             # DONE:
             # Hint: call mlp.backward(), the parameter is the current batch of ground truch trainy[b:end]
@@ -265,11 +297,11 @@ def get_training_stats(mlp, dset, nepochs, batch_size):
 
             # Val ...
             mlp.eval()
-            end = min(b+batch_size, len(valx) -  1)
+            end = min(b + batch_size, len(valx) - 1)
             out = mlp(valx[b:end])
             loss = mlp.criterion(out, valy[b:end])
             loss = np.sum(loss)
-            
+
             result = np.argmax(out, axis=1)
             for i in range(len(result)):
                 if result[i] != np.argmax(valy[b + i]):
@@ -277,23 +309,27 @@ def get_training_stats(mlp, dset, nepochs, batch_size):
 
             result = np.eye(valy.shape[1])[result]
             validation_losses[e] += loss
-        
+
         training_losses[e] /= len(trainx)
         training_errors[e] /= len(trainx)
         validation_losses[e] /= len(valx)
         validation_errors[e] /= len(valx)
         # Accumulate data...
 
-        print("Epoch %03d  " %e, "Training: Loss %1.4f  Error  %1.4f;  " % (training_losses[e],training_errors[e]),"Validation: Loss %1.4f  Error  %1.4f;" % (validation_losses[e],validation_errors[e]))
+        print(
+            "Epoch %03d  " % e, "Training: Loss %1.4f  Error  %1.4f;  " %
+            (training_losses[e], training_errors[e]),
+            "Validation: Loss %1.4f  Error  %1.4f;" %
+            (validation_losses[e], validation_errors[e]))
 
     # Cleanup ...
     results = []
     for b in range(0, len(testx), batch_size):
 
         mlp.eval()
-        end = min(b+batch_size, len(testx) -  1)
+        end = min(b + batch_size, len(testx) - 1)
         out = mlp(testx[b:end])
-        
+
         result = np.argmax(out, axis=1)
         result = np.eye(valy.shape[1])[result]
 
