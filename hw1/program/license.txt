@@ -1,0 +1,1 @@
+本次编程作业原始资料由CMU 11-785 Deep Learning课程http://deeplearning.cs.cmu.edu/ 主讲教师 Bhiksha Raj教授提供。
