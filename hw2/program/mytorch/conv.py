@@ -46,21 +46,19 @@ class Conv1D():
         self.x = x
         result = np.zeros(shape=[self.batch, self.out_channel, out_width])      # NOTE: do NOT use np.float32
         
-        # ToDo:
+        # DONE:
         #----------------------->
         # Hint:
         # Calculate the output of convolutional layer by using self.W[out_c], self.b[out_c], and x with appropriate matrix slicing
         # Use the .sum() method of a array to get the sum of array elements 
         # <---------------------
         
-        # for n in range(self.batch):
-        #    for out_c in range(self.out_channel):
-        #        for out_pos in range(out_width):
-        #            result[n, out_c, out_pos] = ???
+        for n in range(self.batch):
+            for out_c in range(self.out_channel):
+                for out_pos in range(out_width):
+                    result[n, out_c, out_pos] = self.W[out_c] * self.x[n,: , out_pos * self.stride:out_pos * self.stride + self.kernel_size].sum() + self.b[out_c]
 
-        #return result
-
-        raise NotImplemented
+        return result
 
 
 
@@ -72,22 +70,20 @@ class Conv1D():
             dx (np.array): (batch_size, in_channel, input_size)
         """
         dx = np.zeros(shape=self.x.shape)   # NOTE: do NOT use np.float32, use np.float64 instead
- 
-        # ToDo:
+
+        # DONE:
         #----------------------->
         # Hint:
         # Calculate the the gradients by filling self.kernel_size and self.stride in appropriate places (???)
         # <---------------------
-        # for n in range(self.batch):
-        #    for out_c in range(self.out_channel):
-        #        for out_pos in range(self.out_width):
-        #            self.db[out_c] += delta[n, out_c, out_pos] * 1.0
-        #            self.dW[out_c] += delta[n, out_c, out_pos] * self.x[n, :, out_pos*???:out_pos*??? + ???]
-        #            dx[n, :, out_pos*???:out_pos*??? + ???] += delta[n, out_c, out_pos] * self.W[out_c]
+        for n in range(self.batch):
+            for out_c in range(self.out_channel):
+                for out_pos in range(self.out_width):
+                    self.db[out_c] += delta[n, out_c, out_pos] * 1.0
+                    self.dW[out_c] += delta[n, out_c, out_pos] * self.x[n, :, out_pos*self.stride:out_pos*self.stride + self.kernel_size]
+                    dx[n, :, out_pos*self.stride:out_pos*self.stride + self.kernel_size] += delta[n, out_c, out_pos] * self.W[out_c]
 
-        # return dx
-
-        raise NotImplemented
+        return dx
 
 
 
