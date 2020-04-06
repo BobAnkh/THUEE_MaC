@@ -57,20 +57,20 @@ class CNN(object):
         self.convolutional_layers = []
         self.convolutional_layers.append(Conv1D(num_input_channels,num_channels[0],kernel_sizes[0],strides[0],conv_weight_init_fn,bias_init_fn))
         
-        # ToDo:
+        # DONE:
         # Hint:
         # Initializing the rest convolutional layers 
         # by calling Conv1D() with apropriate initialization parameters.
         
-        # for i in range(1, self.nlayers):
-        #    self.convolutional_layers.append(Conv1D(???))
+        for i in range(1, self.nlayers):
+            self.convolutional_layers.append(Conv1D(num_input_channels,num_channels[i],kernel_sizes[i],strides[i],conv_weight_init_fn,bias_init_fn))
 
 
         # The flatten layer will transform a two-dimensional matrix of features into a vector that can be fed into a fully connected layer.
         # The initialization of flatten layer has no parameter.
         self.flatten = Flatten()
         
-        # ToDo:
+        # DONE:
         #----------------------->
         # Hint:
         # Calling Linear() with apropriate initialization parameters.        
@@ -83,7 +83,10 @@ class CNN(object):
         # <---------------------
         
         
-        # self.linear_layer = Linear(???, num_linear_neurons, linear_weight_init_fn, bias_init_fn)
+        out_width = input_width
+        for i in range(self.nlayers):
+            out_width = (out_width - kernel_sizes[i]) // strides[i] +1
+        self.linear_layer = Linear(out_width * num_channels[-1], num_linear_neurons, linear_weight_init_fn, bias_init_fn)
 
 
     def forward(self, x):
@@ -94,16 +97,16 @@ class CNN(object):
             out (np.array): (batch_size, num_linear_neurons)
         """
 
-        # ToDo:
+        # DONE:
         #----------------------->
         # Iterate through each layer
         # Hint:
-        # Calling the forward functions of convolutional layers and their acitivation funtions
+        # Calling the forward functions of convolutional layers and their activation functions
         # <---------------------
 
-        # for i in range(self.nlayers):
-        #    x = ???    # convolutional layer
-        #    x = ???    # acitivation funtion
+        for i in range(self.nlayers):
+            x = self.convolutional_layers[i](x)    # convolutional layer
+            x = self.activations[i](x)    # activation function
             
         x = self.flatten(x)
         x = self.linear_layer(x)
@@ -128,16 +131,16 @@ class CNN(object):
  
         grad = self.flatten.backward(grad)
         
-        # ToDo:
+        # DONE:
         #----------------------->
         # Iterate through each layer in reverse order
         # Hint:
-        # Calculating the gradation by calling the derivative of acitivation funtions and the backward functions of convolutional layers
+        # Calculating the gradation by calling the derivative of activation functions and the backward functions of convolutional layers
         # <---------------------
 
-        # for i in range(self.nlayers-1,-1,-1):
-        #    grad = ??? *grad    # acitivation funtion
-        #    grad = ???          # convolutional layer
+        for i in range(self.nlayers-1,-1,-1):
+            grad = self.activations[i].derivative() *grad    # activation function
+            grad = self.convolutional_layers[i].backward(grad)          # convolutional layer
         
         return grad
 
