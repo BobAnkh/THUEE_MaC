@@ -63,7 +63,7 @@ class CNN(object):
         # by calling Conv1D() with apropriate initialization parameters.
         
         for i in range(1, self.nlayers):
-            self.convolutional_layers.append(Conv1D(num_input_channels,num_channels[i],kernel_sizes[i],strides[i],conv_weight_init_fn,bias_init_fn))
+            self.convolutional_layers.append(Conv1D(num_channels[i-1],num_channels[i],kernel_sizes[i],strides[i],conv_weight_init_fn,bias_init_fn))
 
 
         # The flatten layer will transform a two-dimensional matrix of features into a vector that can be fed into a fully connected layer.
@@ -82,7 +82,7 @@ class CNN(object):
         # calculate the output width of the third convolutional layer, output_width*output_channel is the input dimension (???) of the linear layer
         # <---------------------
         
-        
+        # DONE
         out_width = input_width
         for i in range(self.nlayers):
             out_width = (out_width - kernel_sizes[i]) // strides[i] +1
