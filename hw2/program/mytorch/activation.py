@@ -67,7 +67,9 @@ class Sigmoid(Activation):
         # self.state = ???
         # Hint: You can use np.exp() function
         # return self.state
-        self.state = np.where(x >= 0, 1.0 / (1.0 + np.exp(-x)), np.exp(x) / (np.exp(x) + 1.0))
+        self.state = x
+        self.state[x>=0] = 1.0 / (1.0 + np.exp(- self.state[x>=0]))
+        self.state[x<0] = np.exp(self.state[x<0]) / ( np.exp(self.state[x<0]) + 1.0)
         return self.state
 
     def derivative(self):
