@@ -33,7 +33,7 @@ class CNN_SimpleScanningMLP():
 
     def init_weights(self, weights):
 
-        # ToDo:
+        # DONE:
         #----------------------->
         # Hint:
         # Load the weights for your CNN from the MLP Weights given
@@ -43,7 +43,7 @@ class CNN_SimpleScanningMLP():
 
         self.conv1.W = weights[0].reshape(8, 24, 8).transpose(2, 1, 0)
         self.conv2.W = weights[1].T.reshape(16, 8, 1)
-        self.conv3.W = weights[2].T.reshape(???, ???, ???)
+        self.conv3.W = weights[2].T.reshape(4, 16, 1)
 
     def forward(self, x):
         """
@@ -96,7 +96,7 @@ class CNN_DistributedScanningMLP():
 
     def init_weights(self, weights):
         
-        # ToDo:
+        # DONE:
         #----------------------->
         # Hint:
         # Load the weights for your CNN from the MLP Weights given
@@ -106,7 +106,7 @@ class CNN_DistributedScanningMLP():
 
         self.conv1.W = weights[0].reshape(8, 24, 8)[:2, :, :2].transpose(2, 1, 0)
         self.conv2.W = weights[1][:4, :8].reshape(2, 2, 8).transpose(2, 1, 0)
-        self.conv3.W = weights[2].reshape(???, ???, ???).transpose(2, 1, 0)
+        self.conv3.W = weights[2].reshape(2, 8, 4).transpose(2, 1, 0)
 
     def forward(self, x):
         """
