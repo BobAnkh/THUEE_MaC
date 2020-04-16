@@ -56,7 +56,7 @@ class Conv1D():
         for n in range(self.batch):
             for out_c in range(self.out_channel):
                 for out_pos in range(out_width):
-                    result[n, out_c, out_pos] = self.W[out_c] * self.x[n,: , out_pos * self.stride:out_pos * self.stride + self.kernel_size].sum() + self.b[out_c]
+                    result[n, out_c, out_pos] = np.sum(self.W[out_c] * self.x[n,: , out_pos * self.stride:out_pos * self.stride + self.kernel_size])+ self.b[out_c]
 
         return result
 
