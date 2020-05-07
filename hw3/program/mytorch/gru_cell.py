@@ -55,16 +55,16 @@ class GRU_Cell:
         self.x = x
         self.hidden = h
 
-        # ToDo:
+        # DONE:
         #----------------------->
         # Define your variables based on the writeup using the corresponding
         # names below.
        # <---------------------
 
-        # self.z = self.z_act(??? + self.Wzx.dot(x))
-        # self.r = self.r_act(??? + self.Wrx.dot(x))
-        # self.h_tilde = self.h_act(??? + self.Wx.dot(x))
-        # h_t = (1 - self.z) * h + self.z * self.h_tilde
+        self.z = self.z_act(self.Wzh.dot(h) + self.Wzx.dot(x))
+        self.r = self.r_act(self.Wrh.dot(h) + self.Wrx.dot(x))
+        self.h_tilde = self.h_act(self.Wh.dot(self.r * h) + self.Wx.dot(x))
+        h_t = (1 - self.z) * h + self.z * self.h_tilde
 
         assert self.x.shape == (self.d, )
         assert self.hidden.shape == (self.h, )
@@ -88,44 +88,43 @@ class GRU_Cell:
         #  - dx: Derivative of loss wrt the input x
         #  - dh: Derivative  of loss wrt the input hidden h
 
-        # ToDo:
+        # DONE:
         #----------------------->
         # 1) Represent each variable through a column vector 
         # 2) Compute all of the derivatives in order
         # Understand then uncomment this code, and fill in the blanks marked with '???'
         # <---------------------
 
-        # dx = np.zeros((1, self.d))
-        # dh = np.zeros((1, self.h))
-        # delta = delta.reshape(-1)
+        dx = np.zeros((1, self.d))
+        dh = np.zeros((1, self.h))
+        delta = delta.reshape(-1)
 
-        # dh += (delta * (1-self.z)).reshape(1, -1)    # (1, h)
+        dh += (delta * (1-self.z)).reshape(1, -1)    # (1, h)
 
-        # dz = delta * (self.h_tilde - self.hidden)   # (h)
-        # dz_inner = dz * self.z_act.derivative()       # (h)
-        # self.dWzh = dz_inner.reshape(-1, 1).dot(self.hidden.reshape(1, -1))     # (h, h)
-        # self.dWzx = dz_inner.reshape(-1, 1).dot(self.x.reshape(1, -1))          # (h, d)
-        # dh += dz_inner.reshape(1, -1).dot(???)     # (1, h)
-        # dx += dz_inner.reshape(1, -1).dot(???)     # (1, d)
+        dz = delta * (self.h_tilde - self.hidden)   # (h)
+        dz_inner = dz * self.z_act.derivative()       # (h)
+        self.dWzh = dz_inner.reshape(-1, 1).dot(self.hidden.reshape(1, -1))     # (h, h)
+        self.dWzx = dz_inner.reshape(-1, 1).dot(self.x.reshape(1, -1))          # (h, d)
+        dh += dz_inner.reshape(1, -1).dot(self.Wzh)     # (1, h)
+        dx += dz_inner.reshape(1, -1).dot(self.Wzx)     # (1, d)
 
-        # dh_tilde = delta * self.z       # (h)
-        # dh_tilde_inner = dh_tilde * self.h_act.derivative()   # (h)
-        # self.dWx = dh_tilde_inner.reshape(-1, 1).dot(self.x.reshape(1, -1))     # (h, d)
-        # dx += dh_tilde_inner.reshape(1, -1).dot(???)    # (1, d)
+        dh_tilde = delta * self.z       # (h)
+        dh_tilde_inner = dh_tilde * self.h_act.derivative()   # (h)
+        self.dWx = dh_tilde_inner.reshape(-1, 1).dot(self.x.reshape(1, -1))     # (h, d)
+        dx += dh_tilde_inner.reshape(1, -1).dot(self.Wx)    # (1, d)
 
-        # drh = self.Wh.T.dot(???)     # (h)
-        # self.dWh = dh_tilde_inner.reshape(-1, 1).dot((self.r * self.hidden).reshape(1, -1))     # (h, h)
-        # dh += (drh * self.r).reshape(1, -1)      # (1, h)
+        drh = self.Wh.T.dot(dh_tilde_inner)     # (h)
+        self.dWh = dh_tilde_inner.reshape(-1, 1).dot((self.r * self.hidden).reshape(1, -1))     # (h, h)
+        dh += (drh * self.r).reshape(1, -1)      # (1, h)
 
-        # dr = drh * self.hidden      # (h)
-        # dr_inner = dr * self.r_act.derivative()    # (h)
-        # self.dWrh = dr_inner.reshape(-1, 1).dot(self.hidden.reshape(1, -1))     # (h, h)
-        # self.dWrx = dr_inner.reshape(-1, 1).dot(self.x.reshape(1, -1))      # (h, d)
-        # dh += dr_inner.reshape(1, -1).dot(???)     # (1, h)
-        # dx += dr_inner.reshape(1, -1).dot(???)     # (1, d)
+        dr = drh * self.hidden      # (h)
+        dr_inner = dr * self.r_act.derivative()    # (h)
+        self.dWrh = dr_inner.reshape(-1, 1).dot(self.hidden.reshape(1, -1))     # (h, h)
+        self.dWrx = dr_inner.reshape(-1, 1).dot(self.x.reshape(1, -1))      # (h, d)
+        dh += dr_inner.reshape(1, -1).dot(self.Wrh)     # (1, h)
+        dx += dr_inner.reshape(1, -1).dot(self.Wrx)     # (1, d)
 
-        # assert dx.shape == (1, self.d)
-        # assert dh.shape == (1, self.h)
+        assert dx.shape == (1, self.d)
+        assert dh.shape == (1, self.h)
 
-        # return dx, dh
-        raise NotImplementedError
+        return dx, dh
