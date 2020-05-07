@@ -12,14 +12,14 @@ class RNN_Phoneme_Classifier(object):
         self.hidden_size = hidden_size
         self.num_layers = num_layers
 
-        # ToDo: 
+        # DONE: 
         #----------------------->
         # Understand then uncomment this code :)
         # <---------------------
 
-        # self.rnn = [RNN_Cell(input_size, hidden_size) if i == 0 else
-        #             RNN_Cell(hidden_size, hidden_size) for i in range(num_layers)]
-        # self.output_layer = Linear(hidden_size, output_size)
+        self.rnn = [RNN_Cell(input_size, hidden_size) if i == 0 else
+                    RNN_Cell(hidden_size, hidden_size) for i in range(num_layers)]
+        self.output_layer = Linear(hidden_size, output_size)
 
         # store hidden states at each time step, [(seq_len+1) * (num_layers, batch_size, hidden_size)]
         self.hiddens = []
@@ -74,7 +74,7 @@ class RNN_Phoneme_Classifier(object):
         self.x = x
         self.hiddens.append(hidden.copy())
 
-        # ToDo: 
+        # DONE: 
         #----------------------->
         # Pseudocode：
         # Iterate through the sequence
@@ -88,14 +88,14 @@ class RNN_Phoneme_Classifier(object):
         # <---------------------
 
 
-        # for time_step in range(seq_len):
-        #    for layer_idx, rnn_cell in enumerate(self.rnn):
-        #        hidden[layer_idx] = rnn_cell(hidden[???] if layer_idx > 0 else x[:, time_step, :],
-        #                                     hidden[???])
-        #    self.hiddens.append(hidden.copy())
+        for time_step in range(seq_len):
+            for layer_idx, rnn_cell in enumerate(self.rnn):
+                hidden[layer_idx] = rnn_cell(hidden[layer_idx - 1] if layer_idx > 0 else x[:, time_step, :],
+                                             hidden[layer_idx])
+            self.hiddens.append(hidden.copy())
 
-        # logits = self.output_layer(self.hiddens[-1][-1])
-        # return logits
+        logits = self.output_layer(self.hiddens[-1][-1])
+        return logits
 
         raise NotImplementedError
 
@@ -120,7 +120,7 @@ class RNN_Phoneme_Classifier(object):
         dh = np.zeros((self.num_layers, batch_size, self.hidden_size), dtype=float)
         dh[-1] = self.output_layer.backward(delta)  # The 
 
-        # ToDo: 
+        # DONE: 
         #----------------------->
         '''
 
@@ -145,17 +145,15 @@ class RNN_Phoneme_Classifier(object):
         '''
         # <---------------------
 
-        # for time_step in range(seq_len)[::-1]:      # from seq_len-1 to 0
-        #     tmp_dx = 0
-        #     for layer_idx in range(len(self.rnn))[::-1]:    # from num_layers-1 to 0
-        #         tmp_dx, dh[layer_idx] = self.rnn[layer_idx].backward(
-        #             delta=dh[layer_idx] + tmp_dx,
-        #             h=self.hiddens[time_step+1][layer_idx],
-        #             h_prev_l=self.hiddens[time_step+1][layer_idx-1] if layer_idx > 0 else self.x[:, time_step, :],
-        #             h_prev_t=self.hiddens[???][???]
-        #         )
+        for time_step in range(seq_len)[::-1]:      # from seq_len-1 to 0
+            tmp_dx = 0
+            for layer_idx in range(len(self.rnn))[::-1]:    # from num_layers-1 to 0
+                tmp_dx, dh[layer_idx] = self.rnn[layer_idx].backward(
+                    delta=dh[layer_idx] + tmp_dx,
+                    h=self.hiddens[time_step+1][layer_idx],
+                    h_prev_l=self.hiddens[time_step+1][layer_idx-1] if layer_idx > 0 else self.x[:, time_step, :],
+                    h_prev_t=self.hiddens[time_step][layer_idx]
+                )
 
-        # dh_0 = dh / batch_size
-        # return dh_0
-
-        raise NotImplementedError
+        dh_0 = dh / batch_size
+        return dh_0
