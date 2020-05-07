@@ -12,15 +12,15 @@ class CharacterPredictor(object):
     def __init__(self, input_dim, hidden_dim, num_classes):
         super(CharacterPredictor, self).__init__()
 
-        # ToDo:
+        # DONE:
         #----------------------->
         # Hint:
         # The network consists of a GRU Cell and a linear layer
         # Calling the GRU_Cell and Linear initializaiton functions with parameters of input and output data dimensions
         # <---------------------
 
-        # self.rnn = GRU_Cell(???, ???)
-        # self.projection = Linear(???, ???)
+        self.rnn = GRU_Cell(input_dim, hidden_dim)
+        self.projection = Linear(hidden_dim, num_classes)
 
     def init_rnn_weights(self, w_hi, w_hr, w_hn, w_ii, w_ir, w_in):
         # DO NOT MODIFY
@@ -31,18 +31,16 @@ class CharacterPredictor(object):
 
     def forward(self, x, h):
 
-        # ToDo:
+        # DONE:
         #----------------------->
         # Hint:
         # A pass through one time step of the input
         # <---------------------
 
-        # h_t = self.rnn(???, ???)
-        # logits = self.projection(???)
+        h_t = self.rnn(x, h)
+        logits = self.projection(h_t)
 
-        # return logits, h_t
-        
-        raise NotImplementedError
+        return logits, h_t
 
 # An instance of the class defined above runs through a sequence of inputs to
 # generate the logits for all the timesteps.
@@ -57,16 +55,14 @@ def inference(net, inputs):
     h = np.zeros(net.rnn.h)     # initial hidden state
     logits = []
 
-    # ToDo:
+    # DONE:
     #----------------------->
     # Hint:
     # A pass through each time step of the input to generate the logits
     # <---------------------
 
-    # for idx in range(???):
-    #     tmp_logit, h = net(???, ???)
-    #     logits.append(tmp_logit)
-    # logits = np.array(logits)
-    # return logits
-
-    raise NotImplementedError
+    for idx in range(inputs.shape[0]):
+        tmp_logit, h = net(inputs[idx], h)
+        logits.append(tmp_logit)
+    logits = np.array(logits)
+    return logits
