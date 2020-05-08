@@ -4,8 +4,8 @@
 
 ## 2 AD
 
-## 3 ABCD
+## 3 ABD
 
 ## 4 D
 
-## 5 ABCDE
+## 5 ACDE
